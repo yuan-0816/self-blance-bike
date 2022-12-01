@@ -2,7 +2,6 @@ import pigpio
 import time
 
 
-
 REAR_WHEEl_PIN = 16   # MG996R
 
 pi = pigpio.pi()
