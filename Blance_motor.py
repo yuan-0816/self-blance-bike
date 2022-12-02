@@ -16,4 +16,7 @@ pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, 600000)
 time.sleep(1)
 pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, 500000)
 time.sleep(1)
-pi.set_mode(BLANCE_MOTOR_PIN, pigpio.OUTPUT)
+pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, 1000000)
+
+# pi.set_mode(BLANCE_MOTOR_PIN, pigpio.OUTPUT)
+# pi.write(BLANCE_MOTOR_PIN, 1)
