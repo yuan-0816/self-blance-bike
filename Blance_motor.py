@@ -6,6 +6,7 @@ BLANCE_MOTOR_PWM_FREQ = 8000
 
 pi = pigpio.pi()
 
+    
 pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, 900000)
 time.sleep(1)
 pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, 800000)
