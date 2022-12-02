@@ -41,12 +41,12 @@ try:
             
         if keyboard.is_pressed('w'):
 #             pi.hardware_PWM(REAR_WHEEl_PIN, PWM_FREQ, 120000)
-            pi.set_PWM_dutycycle(REAR_WHEEl_PIN, int(0.12*256))
+            pi.set_PWM_dutycycle(REAR_WHEEl_PIN, int(0.12*256))    # dutycycle = 12%
             time.sleep(0.05)
             
         if keyboard.is_pressed('s'):
 #             pi.hardware_PWM(REAR_WHEEl_PIN, PWM_FREQ, 30000)
-            pi.set_PWM_dutycycle(REAR_WHEEl_PIN, int(0.03*256))
+            pi.set_PWM_dutycycle(REAR_WHEEl_PIN, int(0.03*256))    # dutycycle = 3%
             time.sleep(0.05)
 
 finally:
