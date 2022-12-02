@@ -5,7 +5,7 @@ import numpy as np
 from Kalman import Kalman
 
 
-DEBUG = False
+DEBUG = True
 
 #some MPU6050 Registers and their Address
 PWR_MGMT_1   = 0x6B
@@ -30,6 +30,7 @@ FILTER_BW_10 = 0x05
 FILTER_BW_5 = 0x06
 
 GRAVITIY = 9.80665
+CALIBRATE_SIZE=1000
 
 Device_Address = 0x68   # MPU6050 device address
 
@@ -72,8 +73,7 @@ def read_data_tuple(data=None):
     elif data == "gyr":
         return read_raw_data(GYRO_XOUT_H), read_raw_data(GYRO_YOUT_H), read_raw_data(GYRO_ZOUT_H)
         
-def RectifyData(CALIBRATE_SIZE=2000):
-    print("-" * 50)
+def RectifyData(CALIBRATE_SIZE):
     print("MPU6050 is calibrating - keep the MPU6050 steady...")
     acc_array = []    # [x, y, z]
     gyr_array = []
@@ -90,6 +90,7 @@ def RectifyData(CALIBRATE_SIZE=2000):
         acc_array.append([ax, ay, az])
         gyr_array.append([gx, gy, gz])
 #         print(np.shape(acc_array)[0])
+        print("\n---------------------------------------------------")
         print("MPU6050 is calibrating - keep the MPU6050 steady...")
         print("This is " + str(np.shape(acc_array)[0])+ " times")
         if np.shape(acc_array)[0] == CALIBRATE_SIZE:
@@ -131,55 +132,55 @@ MPU_Init()
 set_filter_range(FILTER_BW_5)
 
 if (DEBUG):
-    acc_offsets, gyr_offsets = RectifyData()
+    acc_offsets, gyr_offsets = RectifyData(CALIBRATE_SIZE)
     print(acc_offsets, gyr_offsets)
 
-acc_offsets = [-15594.48, -152.778, -2702.478]    #[accX, accY, accZ]
-gyr_offsets = [24.2095, 2.2875, 9.965]    #[gyrX, gyrY, gyrZ]
+acc_offsets = [-15694.684, 269.844, -3425.6]    #[accX, accY, accZ]
+gyr_offsets = [6.276, -1.806, 14.235]    #[gyrX, gyrY, gyrZ]
 
 
 kalAngleY = Kalman()
 timer = time.time()
 
+if not DEBUG:
+    while True:
+        #Read Accelerometer raw value
+        acc = [read_raw_data(ACCEL_XOUT_H),
+               read_raw_data(ACCEL_YOUT_H),
+               read_raw_data(ACCEL_ZOUT_H)]
+        
+        #Read Gyroscope raw value
+        gyr = [read_raw_data(GYRO_XOUT_H),
+               read_raw_data(GYRO_YOUT_H),
+               read_raw_data(GYRO_ZOUT_H)]
+        
+        # acc = [read_data_tuple("acc")]
+        # gyr = [read_data_tuple("gyr")]
+        # print(acc)
+        # print(gyr)
+        
+        dt = time.time() - timer
+        timer = time.time()
+        
+        # calibrate
+        cal_acc = OffSet_Data(data_type="acc", datas=acc)
+        cal_gyr = OffSet_Data(data_type="gyr", datas=gyr)
+        
+        # Full scale range +/- 250 degree/C as per sensitivity scale factor
+        for i in range(0, 3):
+            cal_acc[i] /= 16384.0
+            cal_gyr[i] /= 131.072
+        
+        deg = get_z_angle(cal_acc[0], cal_acc[1], cal_acc[2])
+    #     print(deg)
 
-while True:
-    #Read Accelerometer raw value
-    acc = [read_raw_data(ACCEL_XOUT_H),
-           read_raw_data(ACCEL_YOUT_H),
-           read_raw_data(ACCEL_ZOUT_H)]
-    
-    #Read Gyroscope raw value
-    gyr = [read_raw_data(GYRO_XOUT_H),
-           read_raw_data(GYRO_YOUT_H),
-           read_raw_data(GYRO_ZOUT_H)]
-    
-    # acc = [read_data_tuple("acc")]
-    # gyr = [read_data_tuple("gyr")]
-    # print(acc)
-    # print(gyr)
-    
-    dt = time.time() - timer
-    timer = time.time()
-    
-    # calibrate
-    cal_acc = OffSet_Data(data_type="acc", datas=acc)
-    cal_gyr = OffSet_Data(data_type="gyr", datas=gyr)
-    
-    # Full scale range +/- 250 degree/C as per sensitivity scale factor
-    for i in range(0, 3):
-        cal_acc[i] /= 16384.0
-        cal_gyr[i] /= 131.072
-    
-    deg = get_z_angle(cal_acc[0], cal_acc[1], cal_acc[2])
-#     print(deg)
-
-    kal_deg = kalAngleY.getAngle(deg, cal_gyr[2], dt)
-#     print("gyr:", cal_gyr[2])
-    print("kalman:", kal_deg, "deg:", deg)
-#     print(kal_deg)
-    
-#     print(cal_gyr[2])
-    time.sleep(0.03)
+        kal_deg = kalAngleY.getAngle(deg, cal_gyr[2], dt)
+    #     print("gyr:", cal_gyr[2])
+        print("kalman:", kal_deg, "deg:", deg)
+    #     print(kal_deg)
+        
+    #     print(cal_gyr[2])
+        time.sleep(0.03)
 
 
 

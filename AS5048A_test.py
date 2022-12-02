@@ -16,21 +16,29 @@ spi.open(BUS, DEVICE)    # /dev/spi-decv0.0
 spi.mode = 1    # CPOL=0, CPHA=1
 spi.bits_per_word = 8    # AS5048A neesds 16 bits
 spi.lsbfirst = False    # MSB first
+spi.max_speed_hz = 61000
 
-def CalculateDeg(Bin_Angle):
-    return Bin_Angle / 16384.0 * 360.0
 
 try:
     while True:
-        data = spi.xfer2(CMD_ANGLE)
-        print(data)
-        time.sleep(0.05)
 
+        spi.writebytes(CMD_ANGLE)
+
+#         time.sleep(10/1000000.0) # 10us
+
+        data = spi.readbytes(len(CMD_ANGLE))
+#         print(data)
+#         print(bin(data[1])[2:].zfill(8)
+        # type is str
+        result = "0b" + bin(data[0])[2:].zfill(8)[2:] + bin(data[1])[2:].zfill(8)
+        angle = int(result, 2)
+#         print(bin(angle))
+        deg = angle / 16384.0 * 360.0
+        print(deg)
+
+        time.sleep(0.05)
 finally:
     spi.close()
-
-
-
 
 
 
