@@ -5,7 +5,7 @@ import numpy as np
 from Kalman import Kalman
 
 
-DEBUG = True
+DEBUG = False
 
 #some MPU6050 Registers and their Address
 PWR_MGMT_1   = 0x6B
