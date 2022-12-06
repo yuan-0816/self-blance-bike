@@ -29,12 +29,16 @@ FILTER_BW_42 = 0x03
 FILTER_BW_20 = 0x04
 FILTER_BW_10 = 0x05
 FILTER_BW_5 = 0x06
+Device_Address = 0x68   # MPU6050 device address
 
 GRAVITIY = 9.80665
 
-CALIBRATE_SIZE=1000
+CALIBRATE_SIZE = 1000
 
-Device_Address = 0x68   # MPU6050 device address
+BLANCE_MOTOR_PWM_FREQ = 8000
+BLANCE_MOTOR_PIN = 12
+BLANCE_MOTOR_DIRECTION = 6
+BLANCE_MOTOR_BRAKE = 5    # pi.write(BLANCE_MOTOR_BRAKE, 0) is brake
 
 def MPU_Init():
     #write to sample rate register
@@ -135,46 +139,47 @@ if (DEBUG):
     acc_offsets, gyr_offsets = RectifyData(CALIBRATE_SIZE)
     print(acc_offsets, gyr_offsets)
 
-acc_offsets = [-15694.684, 269.844, -3425.6]    #[accX, accY, accZ]
-gyr_offsets = [6.276, -1.806, 14.235]    #[gyrX, gyrY, gyrZ]
+acc_offsets = [-15745.792, -462.26, -2882.42]    #[accX, accY, accZ]
+gyr_offsets = [8.545, 3.55, 10.578]    #[gyrX, gyrY, gyrZ]
 
 kalAngleY = Kalman()
 timer = time.time()
 
-try:
-    if not DEBUG:
-        while 1:
-            #Read Accelerometer raw value
-            acc = [read_raw_data(ACCEL_XOUT_H),
-                   read_raw_data(ACCEL_YOUT_H),
-                   read_raw_data(ACCEL_ZOUT_H)]
-            
-            #Read Gyroscope raw value
-            gyr = [read_raw_data(GYRO_XOUT_H),
-                   read_raw_data(GYRO_YOUT_H),
-                   read_raw_data(GYRO_ZOUT_H)]
-            
-            # acc = [read_data_tuple("acc")]
-            # gyr = [read_data_tuple("gyr")]
-            # print(acc)
-            # print(gyr)
-            
-            dt = time.time() - timer
-            timer = time.time()
-            
-            # calibrate
-            cal_acc = OffSet_Data(data_type="acc", datas=acc)
-            cal_gyr = OffSet_Data(data_type="gyr", datas=gyr)
-           
-            # Full scale range +/- 250 degree/C as per sensitivity scale factor
-            for i in range(0, 3):
-                cal_acc[i] /= 16384.0
-                cal_gyr[i] /= 131.072
-            deg = get_z_angle(cal_acc[0], cal_acc[1], cal_acc[2])
-            kal_deg = kalAngleY.getAngle(deg, cal_gyr[2], dt)
-            print(kal_deg)
-            time.sleep(SLEEP_TIME / 1000)
+pi = pigpio.pi()
 
-finally:
-    pi.set_mode(REAR_WHEEl_PIN, pigpio.INPUT)
+
+if __name__ == "__main__":
+    try:
+        if not DEBUG:
+            while True:
+                #Read Accelerometer raw value
+                acc = [read_raw_data(ACCEL_XOUT_H),
+                       read_raw_data(ACCEL_YOUT_H),
+                       read_raw_data(ACCEL_ZOUT_H)]
+                #Read Gyroscope raw value
+                gyr = [read_raw_data(GYRO_XOUT_H),
+                       read_raw_data(GYRO_YOUT_H),
+                       read_raw_data(GYRO_ZOUT_H)]
+                
+                dt = time.time() - timer
+                timer = time.time()
+                
+                # calibrate
+                cal_acc = OffSet_Data(data_type="acc", datas=acc)
+                cal_gyr = OffSet_Data(data_type="gyr", datas=gyr)
+               
+                # Full scale range +/- 250 degree/C as per sensitivity scale factor
+                for i in range(0, 3):
+                    cal_acc[i] /= 16384.0
+                    cal_gyr[i] /= 131.072
+                deg = get_z_angle(cal_acc[0], cal_acc[1], cal_acc[2])
+                kal_deg = kalAngleY.getAngle(deg, cal_gyr[2], dt)
+                print(kal_deg)
+                
+                
+                
+                
+                time.sleep(SLEEP_TIME / 1000)
+    finally:
+        pass
 
