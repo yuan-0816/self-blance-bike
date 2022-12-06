@@ -40,6 +40,19 @@ BLANCE_MOTOR_PIN = 12
 BLANCE_MOTOR_DIRECTION = 6
 BLANCE_MOTOR_BRAKE = 5    # pi.write(BLANCE_MOTOR_BRAKE, 0) is brake
 
+ANGLE_LIMIT = 20
+TARGET_ANGLE = 0
+Angle_FIXRATE = 0
+KP = 0
+KI = 0
+KD = 0
+error = 0
+integral = 0
+derivative = 0
+prevError = 0
+PIDoutput = 0
+motorCtrl = 0
+
 def MPU_Init():
     #write to sample rate register
     bus.write_byte_data(Device_Address, SMPLRT_DIV, 7)
@@ -147,6 +160,7 @@ timer = time.time()
 
 pi = pigpio.pi()
 
+pi.write(BLANCE_MOTOR_BRAKE, 1)
 
 if __name__ == "__main__":
     try:
@@ -174,12 +188,52 @@ if __name__ == "__main__":
                     cal_gyr[i] /= 131.072
                 deg = get_z_angle(cal_acc[0], cal_acc[1], cal_acc[2])
                 kal_deg = kalAngleY.getAngle(deg, cal_gyr[2], dt)
-                print(kal_deg)
+#                 print(kal_deg)
+#                 print(dt)
+                
+                # safety check
+                if (abs(kal_deg) >= ANGLE_LIMIT):
+                    pi.write(BLANCE_MOTOR_BRAKE, 0)
+                    break
+                
+                # variate target angle
+#                 Angle_FIXRATE = 1
+#                 if kal_deg < TARGET_ANGLE:
+#                     TARGET_ANGLE += Angle_FIXRATE * dt
+#                 else:
+#                     TARGET_ANGLE -= Angle_FIXRATE * dt
+                
+                # PID cotrol
+                KP = 0.2
+                KI = 0.1
+                KD = 0.0005
+                error = TARGET_ANGLE - kal_deg
+                integral += error * dt
+                derivative = (error - prevError) / dt
+                prevError = error
+                PIDoutput = KP * error + KI * integral + KD * derivative
+                print(PIDoutput, kal_deg)
+                motorCtrl = min(max(PIDoutput, -1), 1)
+#                 print(PIDoutput, motorCtrl)
+#                 print(int(round(abs(1-motorCtrl), 6) * 1000000))
+#                 print(motorCtrl)
+                motor_pwm = 1000000 - int(round(abs(motorCtrl), 6) * 1000000)
+                print(motor_pwm)
+                pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, motor_pwm)
+                if motorCtrl > 0:
+                    pi.write(BLANCE_MOTOR_DIRECTION, 0)
+                if motorCtrl < 0:
+                    pi.write(BLANCE_MOTOR_DIRECTION, 1)
+
+
+                    
+                    
                 
                 
                 
-                
+#                 time.sleep(0.05)
                 time.sleep(SLEEP_TIME / 1000)
     finally:
-        pass
+        pi.write(BLANCE_MOTOR_BRAKE, 0)
+
 
