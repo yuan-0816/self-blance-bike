@@ -1,11 +1,11 @@
 import pigpio
 import time
 import smbus #import SMBus module of I2C
-import math
 import numpy as np
+import math
 from Kalman import Kalman
 
-DEBUG = False
+DEBUG = True
 SLEEP_TIME = 1    # main loop sleep [ms]
 
 #some MPU6050 Registers and their Address
@@ -33,7 +33,7 @@ Device_Address = 0x68   # MPU6050 device address
 
 GRAVITIY = 9.80665
 
-CALIBRATE_SIZE = 1000
+CALIBRATE_SIZE = 1500
 
 BLANCE_MOTOR_PWM_FREQ = 8000
 BLANCE_MOTOR_PIN = 12
@@ -193,7 +193,7 @@ if __name__ == "__main__":
                     cal_gyr[i] /= 131.072
                 deg = get_z_angle(cal_acc[0], cal_acc[1], cal_acc[2])
                 kal_deg = kalAngleY.getAngle(deg, cal_gyr[2], dt)
-                print(kal_deg)
+                print(kal_deg, TARGET_ANGLE)
 #                 print(dt)
                 
                 # safety check
@@ -202,16 +202,16 @@ if __name__ == "__main__":
                     break
                 
                 # variate target angle
-#                 Angle_FIXRATE = 0.1
+#                 Angle_FIXRATE = 1
 #                 if kal_deg < TARGET_ANGLE:
 #                     TARGET_ANGLE += Angle_FIXRATE * dt
 #                 else:
 #                     TARGET_ANGLE -= Angle_FIXRATE * dt
                 
                 # PID cotrol
-                KP = 0.11
-                KI = 0.015
-                KD = 0.005
+                KP = 0.2
+                KI = 0.0 #114
+                KD = 0.0 #02
                 error = TARGET_ANGLE - kal_deg
                 integral += error * dt
                 derivative = (error - prevError) / dt
@@ -222,13 +222,13 @@ if __name__ == "__main__":
 #                 print(PIDoutput, motorCtrl)
 #                 print(int(round(abs(1-motorCtrl), 6) * 1000000))
 #                 print(motorCtrl)
-                motor_pwm = (1000000 - int(round(abs(motorCtrl), 6) * 1000000))
+                motor_pwm = (int(round(1 - abs(motorCtrl), 6) * 1000000))
 #                 print(motor_pwm/10000)
+                pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, int(motor_pwm))
                 if motorCtrl > 0:
                     pi.write(BLANCE_MOTOR_DIRECTION, 0)
                 if motorCtrl < 0:
                     pi.write(BLANCE_MOTOR_DIRECTION, 1)
-                pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, int(motor_pwm))
 
                 logData.append([kal_deg, PIDoutput, TARGET_ANGLE, error])
 
