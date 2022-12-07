@@ -5,7 +5,7 @@ import numpy as np
 import math
 from Kalman import Kalman
 
-DEBUG = True
+DEBUG = False
 SLEEP_TIME = 1    # main loop sleep [ms]
 
 #some MPU6050 Registers and their Address
@@ -157,8 +157,8 @@ if (DEBUG):
     acc_offsets, gyr_offsets = RectifyData(CALIBRATE_SIZE)
     print(acc_offsets, gyr_offsets)
 
-acc_offsets = [-15752.24, -206.38, -2576.5]    #[accX, accY, accZ]
-gyr_offsets = [7.315, -2.66, 14.775]    #[gyrX, gyrY, gyrZ]
+acc_offsets = [-15790.621333333333, -139.56, -2187.7973333333334]    #[accX, accY, accZ]
+gyr_offsets = [6.68, -6.282666666666667, 12.684]    #[gyrX, gyrY, gyrZ]
 
 kalAngleY = Kalman()
 timer = time.time()
@@ -210,8 +210,8 @@ if __name__ == "__main__":
                 
                 # PID cotrol
                 KP = 0.2
-                KI = 0.0 #114
-                KD = 0.0 #02
+                KI = 0.08 #114
+                KD = 0.0038
                 error = TARGET_ANGLE - kal_deg
                 integral += error * dt
                 derivative = (error - prevError) / dt
