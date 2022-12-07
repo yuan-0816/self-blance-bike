@@ -40,7 +40,7 @@ BLANCE_MOTOR_PIN = 12
 BLANCE_MOTOR_DIRECTION = 6
 BLANCE_MOTOR_BRAKE = 5    # pi.write(BLANCE_MOTOR_BRAKE, 0) is brake
 
-ANGLE_LIMIT = 20
+ANGLE_LIMIT = 8
 TARGET_ANGLE = 0
 Angle_FIXRATE = 0
 KP = 0
@@ -52,6 +52,11 @@ derivative = 0
 prevError = 0
 PIDoutput = 0
 motorCtrl = 0
+kal_deg = 0
+deg = 0
+
+# kal_deg, PIDoutput, targetAngle, error
+logData = [["kal_deg", "PIDoutput", "targetAngle", "error"]]
 
 def MPU_Init():
     #write to sample rate register
@@ -152,8 +157,8 @@ if (DEBUG):
     acc_offsets, gyr_offsets = RectifyData(CALIBRATE_SIZE)
     print(acc_offsets, gyr_offsets)
 
-acc_offsets = [-15745.792, -462.26, -2882.42]    #[accX, accY, accZ]
-gyr_offsets = [8.545, 3.55, 10.578]    #[gyrX, gyrY, gyrZ]
+acc_offsets = [-15752.24, -206.38, -2576.5]    #[accX, accY, accZ]
+gyr_offsets = [7.315, -2.66, 14.775]    #[gyrX, gyrY, gyrZ]
 
 kalAngleY = Kalman()
 timer = time.time()
@@ -188,7 +193,7 @@ if __name__ == "__main__":
                     cal_gyr[i] /= 131.072
                 deg = get_z_angle(cal_acc[0], cal_acc[1], cal_acc[2])
                 kal_deg = kalAngleY.getAngle(deg, cal_gyr[2], dt)
-#                 print(kal_deg)
+                print(kal_deg)
 #                 print(dt)
                 
                 # safety check
@@ -197,39 +202,36 @@ if __name__ == "__main__":
                     break
                 
                 # variate target angle
-#                 Angle_FIXRATE = 1
+#                 Angle_FIXRATE = 0.1
 #                 if kal_deg < TARGET_ANGLE:
 #                     TARGET_ANGLE += Angle_FIXRATE * dt
 #                 else:
 #                     TARGET_ANGLE -= Angle_FIXRATE * dt
                 
                 # PID cotrol
-                KP = 0.2
-                KI = 0.1
-                KD = 0.0005
+                KP = 0.15
+                KI = 0.01
+                KD = 0.003
                 error = TARGET_ANGLE - kal_deg
                 integral += error * dt
                 derivative = (error - prevError) / dt
                 prevError = error
                 PIDoutput = KP * error + KI * integral + KD * derivative
-                print(PIDoutput, kal_deg)
+#                 print(PIDoutput, kal_deg)
                 motorCtrl = min(max(PIDoutput, -1), 1)
 #                 print(PIDoutput, motorCtrl)
 #                 print(int(round(abs(1-motorCtrl), 6) * 1000000))
 #                 print(motorCtrl)
                 motor_pwm = 1000000 - int(round(abs(motorCtrl), 6) * 1000000)
-                print(motor_pwm)
-                pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, motor_pwm)
+#                 print(motor_pwm/10000)
                 if motorCtrl > 0:
                     pi.write(BLANCE_MOTOR_DIRECTION, 0)
                 if motorCtrl < 0:
                     pi.write(BLANCE_MOTOR_DIRECTION, 1)
+                pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, motor_pwm)
 
+                logData.append([kal_deg, PIDoutput, TARGET_ANGLE, error])
 
-                    
-                    
-                
-                
                 
 #                 time.sleep(0.05)
                 time.sleep(SLEEP_TIME / 1000)
@@ -237,3 +239,17 @@ if __name__ == "__main__":
         pi.write(BLANCE_MOTOR_BRAKE, 0)
 
 
+#write log data to file
+print("log size", len(logData), "rows")
+if len(logData) > 0:
+    filename = "datalog.dat"
+    #filename = "datalog_" + datetime.now().strftime("%Y%m%d_%H%M%S") + ".dat"
+    print("write to file:", filename)
+    file = open(filename, "w")
+    for logLine in logData:
+        for value in logLine:
+            file.write(str(value) + ' ')
+        file.write('\n')
+    file.close()
+
+print("program ended")
