@@ -209,9 +209,9 @@ if __name__ == "__main__":
 #                     TARGET_ANGLE -= Angle_FIXRATE * dt
                 
                 # PID cotrol
-                KP = 0.15
-                KI = 0.01
-                KD = 0.003
+                KP = 0.11
+                KI = 0.015
+                KD = 0.005
                 error = TARGET_ANGLE - kal_deg
                 integral += error * dt
                 derivative = (error - prevError) / dt
@@ -222,13 +222,13 @@ if __name__ == "__main__":
 #                 print(PIDoutput, motorCtrl)
 #                 print(int(round(abs(1-motorCtrl), 6) * 1000000))
 #                 print(motorCtrl)
-                motor_pwm = 1000000 - int(round(abs(motorCtrl), 6) * 1000000)
+                motor_pwm = (1000000 - int(round(abs(motorCtrl), 6) * 1000000))
 #                 print(motor_pwm/10000)
                 if motorCtrl > 0:
                     pi.write(BLANCE_MOTOR_DIRECTION, 0)
                 if motorCtrl < 0:
                     pi.write(BLANCE_MOTOR_DIRECTION, 1)
-                pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, motor_pwm)
+                pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, int(motor_pwm))
 
                 logData.append([kal_deg, PIDoutput, TARGET_ANGLE, error])
 
