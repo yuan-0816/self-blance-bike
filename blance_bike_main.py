@@ -40,7 +40,7 @@ BLANCE_MOTOR_PIN = 12
 BLANCE_MOTOR_DIRECTION = 6
 BLANCE_MOTOR_BRAKE = 5    # pi.write(BLANCE_MOTOR_BRAKE, 0) is brake
 
-ANGLE_LIMIT = 8
+ANGLE_LIMIT = 10
 TARGET_ANGLE = 0
 Angle_FIXRATE = 0
 KP = 0
@@ -209,9 +209,9 @@ if __name__ == "__main__":
 #                     TARGET_ANGLE -= Angle_FIXRATE * dt
                 
                 # PID cotrol
-                KP = 0.2
-                KI = 0.08 #114
-                KD = 0.0038
+                KP = 1
+                KI = 0.5
+                KD = 0.0
                 error = TARGET_ANGLE - kal_deg
                 integral += error * dt
                 derivative = (error - prevError) / dt
@@ -222,7 +222,7 @@ if __name__ == "__main__":
 #                 print(PIDoutput, motorCtrl)
 #                 print(int(round(abs(1-motorCtrl), 6) * 1000000))
 #                 print(motorCtrl)
-                motor_pwm = (int(round(1 - abs(motorCtrl), 6) * 1000000))
+                motor_pwm = (int(round(1-abs(motorCtrl), 6) * 1000000))
 #                 print(motor_pwm/10000)
                 pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, int(motor_pwm))
                 if motorCtrl > 0:
