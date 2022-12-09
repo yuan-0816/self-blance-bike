@@ -209,9 +209,9 @@ if __name__ == "__main__":
 #                     TARGET_ANGLE -= Angle_FIXRATE * dt
                 
                 # PID cotrol
-                KP = 1
-                KI = 0.5
-                KD = 0.0
+                KP = 1.8
+                KI = 0.1
+                KD = 0.005
                 error = TARGET_ANGLE - kal_deg
                 integral += error * dt
                 derivative = (error - prevError) / dt
