@@ -28,23 +28,24 @@ try:
         pi.set_PWM_dutycycle(REAR_WHEEl_PIN, 0)
 #         pi.hardware_PWM(REAR_WHEEl_PIN, PWM_FREQ, 0)
             
-        if keyboard.is_pressed('d'):
+        if keyboard.is_pressed('right'):
+            print("LEFT!")
             for angle in range(90, 121, STEP):
                 pi.hardware_PWM(DIRECTION_PIN, PWM_FREQ, angle_to_duty_cycle(angle))
                 time.sleep(SPEED)
             time.sleep(BUFFER_TIME)
-        if keyboard.is_pressed('a'):
+        if keyboard.is_pressed('left'):
             for angle in range(90, 59, -STEP):
                 pi.hardware_PWM(DIRECTION_PIN, PWM_FREQ, angle_to_duty_cycle(angle))
                 time.sleep(SPEED)
             time.sleep(BUFFER_TIME)
             
-        if keyboard.is_pressed('w'):
+        if keyboard.is_pressed('up'):
 #             pi.hardware_PWM(REAR_WHEEl_PIN, PWM_FREQ, 120000)
             pi.set_PWM_dutycycle(REAR_WHEEl_PIN, int(0.12*256))    # dutycycle = 12%
             time.sleep(0.05)
             
-        if keyboard.is_pressed('s'):
+        if keyboard.is_pressed('down'):
 #             pi.hardware_PWM(REAR_WHEEl_PIN, PWM_FREQ, 30000)
             pi.set_PWM_dutycycle(REAR_WHEEl_PIN, int(0.03*256))    # dutycycle = 3%
             time.sleep(0.05)
