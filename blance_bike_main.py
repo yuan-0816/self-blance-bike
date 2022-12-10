@@ -35,12 +35,12 @@ GRAVITIY = 9.80665
 
 CALIBRATE_SIZE = 1500
 
-BLANCE_MOTOR_PWM_FREQ = 8000
+BLANCE_MOTOR_PWM_FREQ = 20000
 BLANCE_MOTOR_PIN = 12
 BLANCE_MOTOR_DIRECTION = 6
 BLANCE_MOTOR_BRAKE = 5    # pi.write(BLANCE_MOTOR_BRAKE, 0) is brake
 
-ANGLE_LIMIT = 10
+ANGLE_LIMIT = 13
 TARGET_ANGLE = 0
 Angle_FIXRATE = 0
 KP = 0
@@ -209,9 +209,9 @@ if __name__ == "__main__":
 #                     TARGET_ANGLE -= Angle_FIXRATE * dt
                 
                 # PID cotrol
-                KP = 1.8
+                KP = 0.28
                 KI = 0.1
-                KD = 0.005
+                KD = 0.007
                 error = TARGET_ANGLE - kal_deg
                 integral += error * dt
                 derivative = (error - prevError) / dt
@@ -237,6 +237,7 @@ if __name__ == "__main__":
                 time.sleep(SLEEP_TIME / 1000)
     finally:
         pi.write(BLANCE_MOTOR_BRAKE, 0)
+        pi.hardware_PWM(BLANCE_MOTOR_PIN, BLANCE_MOTOR_PWM_FREQ, 1000000)
 
 
 #write log data to file
