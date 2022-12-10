@@ -41,7 +41,7 @@ BLANCE_MOTOR_DIRECTION = 6
 BLANCE_MOTOR_BRAKE = 5    # pi.write(BLANCE_MOTOR_BRAKE, 0) is brake
 
 ANGLE_LIMIT = 13
-TARGET_ANGLE = 0
+TARGET_ANGLE = 2
 Angle_FIXRATE = 0
 KP = 0
 KI = 0
@@ -157,8 +157,8 @@ if (DEBUG):
     acc_offsets, gyr_offsets = RectifyData(CALIBRATE_SIZE)
     print(acc_offsets, gyr_offsets)
 
-acc_offsets = [-15790.621333333333, -139.56, -2187.7973333333334]    #[accX, accY, accZ]
-gyr_offsets = [6.68, -6.282666666666667, 12.684]    #[gyrX, gyrY, gyrZ]
+acc_offsets = [-15721.365333333333, -1128.8586666666667, -2116.1653333333334]    #[accX, accY, accZ]
+gyr_offsets = [10.511333333333333, 1.2786666666666666, 16.062666666666665]    #[gyrX, gyrY, gyrZ]
 
 kalAngleY = Kalman()
 timer = time.time()
@@ -209,9 +209,9 @@ if __name__ == "__main__":
 #                     TARGET_ANGLE -= Angle_FIXRATE * dt
                 
                 # PID cotrol
-                KP = 0.18
-                KI = 0.05
-                KD = 0.006
+                KP = 0.178
+                KI = 0.35
+                KD = 0.04
                 error = TARGET_ANGLE - kal_deg
                 integral += error * dt
                 derivative = (error - prevError) / dt
