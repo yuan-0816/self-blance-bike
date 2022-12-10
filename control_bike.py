@@ -29,7 +29,6 @@ try:
 #         pi.hardware_PWM(REAR_WHEEl_PIN, PWM_FREQ, 0)
             
         if keyboard.is_pressed('right'):
-            print("LEFT!")
             for angle in range(90, 121, STEP):
                 pi.hardware_PWM(DIRECTION_PIN, PWM_FREQ, angle_to_duty_cycle(angle))
                 time.sleep(SPEED)
