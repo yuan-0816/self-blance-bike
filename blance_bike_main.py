@@ -41,7 +41,7 @@ BLANCE_MOTOR_DIRECTION = 6
 BLANCE_MOTOR_BRAKE = 5    # pi.write(BLANCE_MOTOR_BRAKE, 0) is brake
 
 ANGLE_LIMIT = 13
-TARGET_ANGLE = 2
+TARGET_ANGLE = 0
 Angle_FIXRATE = 0
 KP = 0
 KI = 0
@@ -56,7 +56,7 @@ kal_deg = 0
 deg = 0
 
 # kal_deg, PIDoutput, targetAngle, error
-logData = [["kal_deg", "PIDoutput", "targetAngle", "error"]]
+logData = [["kal_deg", "targetAngle", "error"]]
 
 def MPU_Init():
     #write to sample rate register
@@ -230,7 +230,7 @@ if __name__ == "__main__":
                 if motorCtrl < 0:
                     pi.write(BLANCE_MOTOR_DIRECTION, 1)
 
-                logData.append([kal_deg, PIDoutput, TARGET_ANGLE, error])
+                logData.append([kal_deg, TARGET_ANGLE, error])
 
                 
 #                 time.sleep(0.05)
