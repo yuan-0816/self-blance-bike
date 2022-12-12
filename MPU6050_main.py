@@ -176,6 +176,7 @@ if not DEBUG:
 
         kal_deg = kalAngleY.getAngle(deg, cal_gyr[2], dt)
     #     print("gyr:", cal_gyr[2])
+#         print("deg: ", deg)
         print("kalman:", kal_deg, "deg:", deg)
     #     print(kal_deg)
         
