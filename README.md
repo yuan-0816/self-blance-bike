@@ -1,5 +1,5 @@
 # self-blance-bike
-just my senior project
+just my senior project, use raspberry pi 2w zero
 ![bike v82](https://github.com/yuan-0816/self-blance-bike/assets/83689217/c8a8d597-e56f-4879-b99f-32ea99359a05)
 
 ![S__4702238](https://github.com/yuan-0816/self-blance-bike/assets/83689217/64757a98-c733-427e-a535-be6886ceee7e)
