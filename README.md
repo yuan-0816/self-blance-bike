@@ -1,4 +1,4 @@
 # self-blance-bike
 just my senior project, use raspberry pi zero 2w
 
-![alt text]()
+![alt text](https://github.com/yuan-0816/self-blance-bike/blob/master/S__4702238.jpg?raw=true)
